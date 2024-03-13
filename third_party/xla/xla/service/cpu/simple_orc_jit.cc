@@ -50,6 +50,7 @@ limitations under the License.
 #include "xla/service/cpu/runtime_conv2d_mkl.h"
 #include "xla/service/cpu/runtime_conv3d.h"
 #include "xla/service/cpu/runtime_custom_call_status.h"
+#include "xla/service/cpu/runtime_ffi_proxy.h"
 #include "xla/service/cpu/runtime_fft.h"
 #include "xla/service/cpu/runtime_fork_join.h"
 #include "xla/service/cpu/runtime_fp16.h"
@@ -541,6 +542,7 @@ bool RegisterKnownJITSymbols() {
   REGISTER_CPU_RUNTIME_SYMBOL(TopKF32);
   REGISTER_CPU_RUNTIME_SYMBOL(TracingStart);
   REGISTER_CPU_RUNTIME_SYMBOL(TracingEnd);
+  REGISTER_CPU_RUNTIME_SYMBOL(HandleFfiCall);
 #if defined(INTEL_MKL) && defined(ENABLE_ONEDNN_V3)
   REGISTER_CPU_RUNTIME_SYMBOL(OneDnnMatMul);
   REGISTER_CPU_RUNTIME_SYMBOL(OneDnnSoftmax);
