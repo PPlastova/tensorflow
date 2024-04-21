@@ -156,7 +156,7 @@ if (NOT CMAKE_SYSTEM_PROCESSOR OR CMAKE_SYSTEM_PROCESSOR MATCHES "x86")
   find_package(NEON_2_SSE REQUIRED)
   list(APPEND TFLITE_TARGET_DEPENDENCIES NEON_2_SSE::NEON_2_SSE)
 endif()
-find_package(cpuinfo REQUIRED)  #CPUINFO is used by XNNPACK and RUY library
+# find_package(cpuinfo REQUIRED)  #CPUINFO is used by XNNPACK and RUY library
 find_package(ml_dtypes REQUIRED)
 find_package(ruy REQUIRED)
 # Include TSL, which is in tensorflow/third_party
