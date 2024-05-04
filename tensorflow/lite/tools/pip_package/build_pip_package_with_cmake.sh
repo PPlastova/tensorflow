@@ -29,10 +29,12 @@ BUILD_NUM_JOBS="${BUILD_NUM_JOBS:-4}"
 if [ "${TENSORFLOW_TARGET}" = "rpi" ]; then
   export TENSORFLOW_TARGET="armhf"
 fi
-PYTHON_INCLUDE=$(${PYTHON} -c "from sysconfig import get_paths as gp; print(gp()['include'])")
-PYBIND11_INCLUDE=$(${PYTHON} -c "import pybind11; print (pybind11.get_include())")
-NUMPY_INCLUDE=$(${PYTHON} -c "import numpy; print (numpy.get_include())")
-export CROSSTOOL_PYTHON_INCLUDE_PATH=${PYTHON_INCLUDE}
+if [ -z "${CUSTOM_BUILD_FLAGS}" ]; then
+  PYTHON_INCLUDE=$(${PYTHON} -c "from sysconfig import get_paths as gp; print(gp()['include'])")
+  PYBIND11_INCLUDE=$(${PYTHON} -c "import pybind11; print (pybind11.get_include())")
+  NUMPY_INCLUDE=$(${PYTHON} -c "import numpy; print (numpy.get_include())")
+  export CROSSTOOL_PYTHON_INCLUDE_PATH=${PYTHON_INCLUDE}
+fi
 
 # Fix container image for cross build.
 if [ ! -z "${CI_BUILD_HOME}" ] && [ `pwd` = "/workspace" ]; then
@@ -80,6 +82,28 @@ case "${TENSORFLOW_TARGET}" in
       -DCMAKE_SYSTEM_NAME=Linux \
       -DCMAKE_SYSTEM_PROCESSOR=armv7 \
       -DTFLITE_ENABLE_XNNPACK=OFF \
+      "${TENSORFLOW_LITE_DIR}"
+    ;;
+  riscv64)
+    BUILD_FLAGS="${CUSTOM_BUILD_FLAGS}"
+    cmake \
+      -DCMAKE_C_COMPILER=${RISCV_C_COMPILER} \
+      -DCMAKE_CXX_COMPILER=${RISCV_CXX_COMPILER} \
+      -DCMAKE_SYSROOT=${RISCV_SYSROOT} \
+      -DCMAKE_C_FLAGS="${BUILD_FLAGS}" \
+      -DCMAKE_CXX_FLAGS="${BUILD_FLAGS}" \
+      -DCMAKE_SYSTEM_NAME=Linux \
+      -DCMAKE_SYSTEM_PROCESSOR=riscv64 \
+      -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
+      -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
+      -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
+      -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY \
+      -DCMAKE_CXX_FLAGS_INIT="-march=rv64imafdc -mabi=lp64d" \
+      -DCMAKE_C_FLAGS_INIT="-march=rv64imafdc -mabi=lp64d" \
+      -DTFLITE_ENABLE_XNNPACK=ON \
+      -DXNNPACK_ENABLE_RISCV_VECTOR=OFF \
+      -DXNNPACK_BUILD_TESTS=OFF \
+      -DXNNPACK_BUILD_BENCHMARKS=OFF \
       "${TENSORFLOW_LITE_DIR}"
     ;;
   rpi0)
@@ -161,6 +185,11 @@ case "${TENSORFLOW_TARGET}" in
     ${PYTHON} setup.py bdist --plat-name=${WHEEL_PLATFORM_NAME} \
                        bdist_wheel --plat-name=${WHEEL_PLATFORM_NAME}
     ;;
+  riscv64)
+    WHEEL_PLATFORM_NAME="${WHEEL_PLATFORM_NAME:-linux-riscv64}"
+    ${PYTHON} setup.py bdist --plat-name=${WHEEL_PLATFORM_NAME} \
+                       bdist_wheel --plat-name=${WHEEL_PLATFORM_NAME}
+    ;;
   *)
     if [[ -n "${WHEEL_PLATFORM_NAME}" ]]; then
       ${PYTHON} setup.py bdist --plat-name=${WHEEL_PLATFORM_NAME} \
@@ -207,6 +236,9 @@ case "${TENSORFLOW_TARGET}" in
     ;;
   aarch64)
     dpkg-buildpackage -b -rfakeroot -us -uc -tc -d -a arm64
+    ;;
+  riscv64)
+    dpkg-buildpackage -b -rfakeroot -us -uc -tc -d -a riscv64
     ;;
   *)
     dpkg-buildpackage -b -rfakeroot -us -uc -tc -d
