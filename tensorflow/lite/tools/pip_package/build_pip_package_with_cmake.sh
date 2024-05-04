@@ -98,10 +98,17 @@ case "${TENSORFLOW_TARGET}" in
       -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
       -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
       -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY \
-      -DCMAKE_CXX_FLAGS_INIT="-march=rv64imafdc -mabi=lp64d" \
-      -DCMAKE_C_FLAGS_INIT="-march=rv64imafdc -mabi=lp64d" \
+      -DCMAKE_CXX_FLAGS_INIT="-march=rv64imafdcv0p7_zfh_xtheadc -mabi=lp64d -D__riscv_vector_071 -mrvv-vector-bits=128" \
+      -DCMAKE_C_FLAGS_INIT="-march=rv64imafdcv0p7_zfh_xtheadc -mabi=lp64d -D__riscv_vector_071 -mrvv-vector-bits=128" \
       -DTFLITE_ENABLE_XNNPACK=ON \
-      -DXNNPACK_ENABLE_RISCV_VECTOR=OFF \
+      -DTFLITE_ENABLE_GPU=OFF \
+      -DXNNPACK_ENABLE_RISCV_VECTOR=ON \
+      -DXNNPACK_TARGET_PROCESSOR=riscv \
+      -DXNNPACK_ENABLE_ARM_FP16_SCALAR=OFF \
+      -DXNNPACK_ENABLE_ARM_BF16=OFF \
+      -DXNNPACK_ENABLE_ARM_FP16_VECTOR=OFF \
+      -DXNNPACK_ENABLE_ARM_DOTPROD=OFF \
+      -DXNNPACK_ENABLE_ARM_I8MM=OFF \
       -DXNNPACK_BUILD_TESTS=OFF \
       -DXNNPACK_BUILD_BENCHMARKS=OFF \
       "${TENSORFLOW_LITE_DIR}"

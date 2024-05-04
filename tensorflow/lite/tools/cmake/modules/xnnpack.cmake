@@ -23,7 +23,7 @@ OverridableFetchContent_Declare(
   xnnpack
   GIT_REPOSITORY https://github.com/PPlastova/XNNPACK
   # Sync with tensorflow/workspace2.bzl
-  GIT_TAG pplastova_tflite_riscv
+  GIT_TAG pplastova_tflite_riscv_rvvgemm
   GIT_PROGRESS TRUE
   PREFIX "${CMAKE_BINARY_DIR}"
   SOURCE_DIR "${CMAKE_BINARY_DIR}/xnnpack"
